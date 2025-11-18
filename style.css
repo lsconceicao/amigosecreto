@@ -3,6 +3,11 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .background__detail {
@@ -39,14 +44,15 @@ body {
   background-color: #000;
   border: 1px solid #1875e8;
   filter: drop-shadow(0px 0px 30px #1875e8);
-  height: 871px;
-  left: 50%;
+  position: relative;
+  width: 100%;
+  max-width: 1024px;
+  height: auto;
+  min-height: 600px;
   margin: 0 auto;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 75%;
   z-index: 1;
+  display: flex;
+  flex-direction:column;
 }
 
 .content__corner-rectangle {
@@ -56,16 +62,19 @@ body {
   height: 33px;
   position: absolute;
   right: 32px;
-  width: 511px;
+  width: 100%;
+  max-width: 511px;
   z-index: 3;
 }
 
 .content__main {
   display: flex;
-  flex-direction: column;
-  gap: 80px;
+  flex-direction:inherit;
+  gap: 50px;
   justify-content: start;
-  padding: 100px;
+  padding: 4%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .friends__container {
@@ -80,7 +89,9 @@ body {
   line-height: 160%;
   margin-top: 1rem;
   padding: 24px;
-  width: 453px;
+  width: 100%;
+  max-width: 453px;
+  box-sizing: border-box;
 }
 
 .friends__container > p {
@@ -125,7 +136,9 @@ body {
   margin-bottom: 32px;
   outline: none;
   padding: 8px 16px;
-  width: 517px;
+  width: 100%;
+  max-width: 517px;
+  box-sizing: border-box;
 }
 
 .form__input::placeholder {
@@ -157,6 +170,8 @@ body {
   top: 76px;
   z-index: 2;
   pointer-events: none;
+  max-width: 40%;
+  height: auto;
 }
 
 .prizeDraw__container {
@@ -399,5 +414,31 @@ body {
   to {
     opacity: 0;
     transform: translateX(100%);
+  }
+}
+
+@media (max-width: 768px) {
+  .section__title {
+    font-size: 48px; /* Reduz a fonte gigante de 88px */
+    margin-bottom: 40px;
+  }
+
+  .content__main {
+    padding: 24px; /* Menos padding em celular */
+    gap: 40px;
+  }
+
+  .form__buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .button {
+    width: 100%; /* Botões ocupam toda largura no mobile */
+  }
+  
+  /* Esconder ou ajustar a imagem decorativa no mobile se atrapalhar */
+  .page__image {
+    display: none; 
   }
 }
