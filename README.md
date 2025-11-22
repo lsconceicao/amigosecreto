@@ -58,7 +58,7 @@ git clone [SEU_LINK_DO_REPOSITORIO]
 cd amigo-secreto-digital
 ```
 
-2. Configuração do EmailJS (Chaves)
+### 2. Configuração do EmailJS (Chaves)
 Crie uma conta gratuita no EmailJS.com.
 
 Obtenha sua Service ID, Template ID e Public Key.
@@ -73,7 +73,7 @@ const EMAILJS_TEMPLATE_ID = 'SEU_TEMPLATE_ID';
 const EMAILJS_PUBLIC_KEY = 'SUA_PUBLIC_KEY';
 ```
 
-3. Configuração do Template de E-mail
+### 3. Configuração do Template de E-mail
 No seu template do EmailJS, certifique-se de que o campo To Email Address esteja configurado para usar a variável dinâmica que o JavaScript envia:
 
 ```bash
@@ -82,7 +82,7 @@ HTML
 {{to_email}}
 ```
 
-4. Execução
+### 4. Execução
 Abra o arquivo index.html diretamente no seu navegador ou use uma extensão de servidor local (como o Live Server do VS Code).
 
 📝 Contribuição
