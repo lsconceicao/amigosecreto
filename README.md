@@ -25,7 +25,7 @@ O projeto foi desenvolvido para demonstrar proficiência em:
 
 ---
 
-## 💡 Linha de Raciocínio (Arquitetura)
+## 💡 Arquitetura
 
 O diferencial deste projeto está na **manipulação inteligente dos dados** e na separação de responsabilidades:
 
