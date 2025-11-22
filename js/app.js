@@ -1,4 +1,18 @@
-let amigos = []; // Array para armazenar os nomes dos amigos
+const EMAILJS_SERVICE_ID = 'Amigo_Secreto_Sorteio';
+const EMAILJS_TEMPLATE_ID = 'template_ylal45a';
+const EMAILJS_PUBLIC_KEY = 'NlSOzXJa6qd4bp5cL';
+
+// EMAILJS INICIALIZAÇÃO
+(function(){
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+    }
+})();
+
+// ===============================================
+//            === CÓDIGO PRINCIPAL ===
+// ===============================================
+let amigos = []; // MUDANÇA: Array para armazenar os nomes dos amigos emails (objetos {nome, email})
 
 // Esta função atualiza o <p id="lista-amigos"> lendo o array 'amigos'.
 function atualizarListaAmigosPrincipal() {
@@ -6,7 +20,8 @@ function atualizarListaAmigosPrincipal() {
     if (amigos.length === 0) {
         lista.innerHTML = ''; // Limpa se estiver vazio
     } else {
-        lista.textContent = amigos.join(', '); // Une o array com vírgulas
+        // MUDANÇA: Mapeia o array de objetos para pegar apenas os nomes
+        lista.textContent = amigos.map(a => a.nome).join(', '); // Une o array com vírgulas
     }
 }
 
@@ -33,23 +48,37 @@ function showMessage(message, type = 'error') {
 }
 
 function adicionar() {
-    let amigo = document.getElementById('nome-amigo');
-    let nomeAmigo = amigo.value.trim(); // .trim() remove espaços em branco
+    let nomeEntrada = document.getElementById('nome-amigo');
+    let emailEntrada = document.getElementById('email-amigo');
+    // .trim() remove espaços em branco
+    let nome = nomeEntrada.value.trim();
+    let email = emailEntrada.value.trim(); 
 
-    if (nomeAmigo === '') { // Verifica se está vazio
+    if (nome === '') { // Verifica se está vazio
         showMessage('Por favor, insira um nome válido.', 'error');
         return;
     }
 
-    // Checagem de duplicata simplificada
-    if (amigos.includes(nomeAmigo)) {
-        showMessage('Nome duplicado: ' + nomeAmigo, 'error');
+    if (email === '' || !email.includes('@')) { // Verifica se e-mail é valido conferindo o arroba
+        showMessage('Por favor, insira um e-mail válido.', 'error');
         return;
     }
 
-    amigos.push(nomeAmigo);
+    // MUNDAÇA: Checagem de duplicata (agora checa nome E email)
+    if (amigos.find(a => a.nome === nome)) {
+        showMessage('Nome duplicado: ' + nome, 'error');
+        return;
+    }
+    if (amigos.find(a => a.email === email)) {
+        showMessage('E-mail duplicado: ' + email, 'error');
+        return;
+    }
+
+    amigos.push({nome: nome, email: email});
+
     atualizarListaAmigosPrincipal();
-    amigo.value = '';
+    nomeEntrada.value = '';
+    emailEntrada.value = '';
     showMessage('Amigo adicionado!', 'success'); // Mensagem de sucesso
 }
 
@@ -64,15 +93,42 @@ function sortear() {
     // Criamos uma CÓPIA embaralhada para o sorteio
     let amigosEmbaralhados = embaralhar([...amigos]);
 
-    let sorteio = document.getElementById('lista-sorteio'); // Elemento HTML
-    sorteio.innerHTML = ''; // Limpa o sorteio anterior
+    let sorteioEmail = document.getElementById('lista-sorteio'); // Elemento HTML
+    sorteioEmail.innerHTML = ''; // Limpa o sorteio anterior
 
+    let emailsEnviados = 0;
+
+    showMessage('Sorteando e enviando e-mails...', 'success');
+    sorteioEmail.innerHTML = 'Enviando e-mails. Por favor, aguarde...';
+
+    // MUDANÇA: Itera sobre o array para enviar um e-mail por pessoa
     for (let i = 0; i < amigosEmbaralhados.length; i++) {
-        let amigoA = amigosEmbaralhados[i];
+        let de = amigosEmbaralhados[i];
         // O último amigo pega o primeiro (forma mais segura com módulo)
-        let amigoB = amigosEmbaralhados[(i + 1) % amigosEmbaralhados.length];
+        let para = amigosEmbaralhados[(i + 1) % amigosEmbaralhados.length];
 
-        sorteio.innerHTML += `${amigoA} --> ${amigoB} <br>`;
+        // Prepara os dados para o template do EmailJS
+        const templateParams = {
+            de_nome: de.nome,
+            para_nome: para.nome,
+            to_email: de.email // O e-mail para onde o EmailJS vai enviar
+        };
+
+        // Chama a API do EmailJS
+        // O EmailJS usa o campo 'reply_to' para saber para quem enviar.
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+        .then(function(response) {
+            console.log('E-mail enviado para', de.nome, response.status, response.text);
+            emailsEnviados++;
+
+            if (emailsEnviados === amigos.length) {
+                sorteioEmail.innerHTML = 'Sorteio concluído! Todos os e-mails foram enviados.';
+                showMessage('Sorteio concluído com sucesso!', 'success');
+            }
+        }, function(error) {
+            console.error('Falha ao enviar e-mail para', de.nome, error);
+            showMessage(`Erro ao enviar e-mail para ${de.nome}. Verifique as chaves do EmailJS.`, 'error');
+        });
     }
 }
 
@@ -140,11 +196,11 @@ function renderizarNomesNoModal() {
     }
 
     // Cria os spans clicáveis para cada nome
-    amigosTemporarios.forEach(nome => {
+    amigosTemporarios.forEach(amigo => {
         const span = document.createElement('span');
-        span.textContent = nome;
+        span.textContent = amigo.nome; //MUDANÇA: Exibe o nome
         span.className = 'nome-item'; // Classe para o CSS
-        span.dataset.nome = nome; // Guarda o nome aqui
+        span.dataset.nome = amigo.nome; // Guarda o nome aqui
         listaNomesModal.appendChild(span);
     });
 }
@@ -174,8 +230,8 @@ if (listaNomesModal) {
         if (e.target.classList.contains('nome-item')) {
             const nomeParaRemover = e.target.dataset.nome;
 
-            // Remove o nome APENAS do array TEMPORÁRIO
-            amigosTemporarios = amigosTemporarios.filter(nome => nome !== nomeParaRemover);
+            // MUDANÇA: Filtra o array de OBJETOS pelo nome
+            amigosTemporarios = amigosTemporarios.filter(a => a.nome !== nomeParaRemover);
 
             // Re-desenha a lista DENTRO do modal
             renderizarNomesNoModal();
